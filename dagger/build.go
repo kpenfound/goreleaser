@@ -23,8 +23,8 @@ func (g *Goreleaser) Build(
 		File("/src/dist/goreleaser")
 }
 
-// Container to build Goreleaser
-func (g *Goreleaser) BuildEnv() *Container {
+// Base container to build Goreleaser
+func (g *Goreleaser) Base() *Container {
 	// Base image with Go
 	env := dag.Container().
 		From("cgr.dev/chainguard/wolfi-base").
@@ -58,4 +58,25 @@ func (g *Goreleaser) BuildEnv() *Container {
 		WithWorkdir("/src")
 
 	return env
+}
+
+// Container to build Goreleaser
+func (g *Goreleaser) BuildEnv() *Container {
+	// Base image with Go
+	env := g.Base()
+
+	// Mount the source code
+	env = env.With(WithSource(g))
+
+	return env
+}
+
+func WithSource(g *Goreleaser) WithContainerFunc {
+	return func(c *Container) *Container {
+		return c.
+			WithMountedDirectory("/src", g.Source, ContainerWithMountedDirectoryOpts{
+				Owner: "nonroot",
+			}).
+			WithWorkdir("/src")
+	}
 }
