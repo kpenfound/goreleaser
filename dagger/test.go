@@ -48,6 +48,7 @@ func (g *Goreleaser) TestEnv() *Container {
 		WithEnvVariable("DOCKER_HOST", "tcp://localhost:2375")
 }
 
+// Install Nix binaries from nixos image
 func installNix(target *Container) *Container {
 	nix := dag.Container().From(nixBase)
 	nixBin := "/root/.nix-profile/bin"
@@ -76,6 +77,7 @@ func installNix(target *Container) *Container {
 	return target
 }
 
+// Install buildx plugin for Docker from buildx github release
 func installBuildx(target *Container) *Container {
 	arch := runtime.GOARCH
 	url := fmt.Sprintf("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-%s", arch)
